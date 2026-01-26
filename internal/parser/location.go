@@ -101,10 +101,16 @@ func (p *LocationParser) Parse(data []byte) (packet.Packet, error) {
 	}
 	offset += lbsConsumed
 
-	// Parse ACC (1 byte) - stored in TerminalInfo
-	// According to doc: 0x00=ACC off, 0x01=ACC on
+	// Parse ACC (1 byte) - Protocol 0x22 uses simple boolean ACC field
+	// According to protocol spec: 0x00=ACC off, 0x01=ACC on
+	// Convert to TerminalInfo format by setting bit 1 (ACC bit)
 	accByte := content[offset]
-	terminalInfo := types.NewTerminalInfo(accByte)
+	var terminalInfo types.TerminalInfo
+	if accByte == 0x01 {
+		terminalInfo = types.NewTerminalInfoBuilder().SetACCOn(true).Build()
+	} else {
+		terminalInfo = types.NewTerminalInfoBuilder().SetACCOn(false).Build()
+	}
 	offset++
 
 	// Parse Data Upload Mode (1 byte)
@@ -228,9 +234,16 @@ func (p *Location4GParser) Parse(data []byte) (packet.Packet, error) {
 	mccmnc := uint32(lbsInfo.MCC)*1000 + uint32(lbsInfo.MNC)
 	offset += lbsConsumed
 
-	// Parse ACC (1 byte)
+	// Parse ACC (1 byte) - Protocol 0xA0 uses simple boolean ACC field
+	// According to protocol spec: 0x00=ACC off, 0x01=ACC on
+	// Convert to TerminalInfo format by setting bit 1 (ACC bit)
 	accByte := content[offset]
-	terminalInfo := types.NewTerminalInfo(accByte)
+	var terminalInfo types.TerminalInfo
+	if accByte == 0x01 {
+		terminalInfo = types.NewTerminalInfoBuilder().SetACCOn(true).Build()
+	} else {
+		terminalInfo = types.NewTerminalInfoBuilder().SetACCOn(false).Build()
+	}
 	offset++
 
 	// Parse Data Upload Mode (1 byte)

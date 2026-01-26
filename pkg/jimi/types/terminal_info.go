@@ -14,15 +14,16 @@ type TerminalInfo struct {
 }
 
 // Terminal information bit positions
+// Based on protocol specification for Terminal Information Content byte
 const (
-	terminalBitOilElectricity = 0 // Bit 0: Oil/Electricity status (1=disconnected/power cut)
-	terminalBitGPSTracking    = 1 // Bit 1: GPS tracking (1=enabled)
-	terminalBitReserved2      = 2 // Bit 2: Reserved
-	terminalBitReserved3      = 3 // Bit 3: Reserved
-	terminalBitCharging       = 4 // Bit 4: Charging status (1=charging)
-	terminalBitACCStatus      = 5 // Bit 5: ACC status (1=high/on)
-	terminalBitDefense        = 6 // Bit 6: Defense/armed status (1=armed)
-	terminalBitReserved7      = 7 // Bit 7: Reserved
+	terminalBitDefense        = 0 // Bit 0: Defense/armed status (1=armed, 0=disarmed)
+	terminalBitACCStatus      = 1 // Bit 1: ACC status (1=ACC on, 0=ACC off)
+	terminalBitCharging       = 2 // Bit 2: Charging status (1=charging with power, 0=not charging)
+	terminalBitReserved3      = 3 // Bit 3: Extended bit
+	terminalBitReserved4      = 4 // Bit 4: Extended bit
+	terminalBitReserved5      = 5 // Bit 5: Extended bit
+	terminalBitGPSTracking    = 6 // Bit 6: GPS positioned (1=positioned, 0=not positioned)
+	terminalBitOilElectricity = 7 // Bit 7: Oil/Electricity status (1=cut/disconnected, 0=restored)
 )
 
 // NewTerminalInfo creates a new TerminalInfo from a raw byte

@@ -142,6 +142,39 @@ func (p *LocationPacket) ACCOn() bool {
 	return false
 }
 
+// IsCharging returns true if the device is charging
+func (p *LocationPacket) IsCharging() bool {
+	if p.HasStatus {
+		return p.TerminalInfo.IsCharging()
+	}
+	return false
+}
+
+// IsGPSPositioned returns true if GPS is positioned
+// Falls back to CourseStatus if TerminalInfo is not available
+func (p *LocationPacket) IsGPSPositioned() bool {
+	if p.HasStatus {
+		return p.TerminalInfo.GPSTrackingEnabled()
+	}
+	return p.CourseStatus.GetIsPositioned()
+}
+
+// IsPowerCut returns true if fuel/power is cut
+func (p *LocationPacket) IsPowerCut() bool {
+	if p.HasStatus {
+		return p.TerminalInfo.OilElectricityDisconnected()
+	}
+	return false
+}
+
+// IsArmed returns true if device is armed
+func (p *LocationPacket) IsArmed() bool {
+	if p.HasStatus {
+		return p.TerminalInfo.IsArmed()
+	}
+	return false
+}
+
 // String returns a human-readable representation
 func (p *LocationPacket) String() string {
 	return fmt.Sprintf("LocationPacket{Time: %s, Pos: [%.6f, %.6f], Speed: %d km/h, Heading: %d° (%s), Satellites: %d}",
