@@ -10,7 +10,7 @@ By participating in this project, you agree to maintain a respectful and collabo
 
 ### Reporting Bugs
 
-1. Check if the bug has already been reported in [Issues](https://github.com/intelcon-group/jimi-vl103m/issues)
+1. Check if the bug has already been reported in [Issues](https://github.com/fcode09/jimi-vl103m/issues)
 2. If not, create a new issue with:
    - Clear title and description
    - Steps to reproduce

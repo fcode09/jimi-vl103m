@@ -2,7 +2,7 @@
 
 [![Go Version](https://img.shields.io/badge/Go-1.21+-00ADD8?style=flat&logo=go)](https://golang.org)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Go Report Card](https://goreportcard.com/badge/github.com/intelcon-group/jimi-vl103m)](https://goreportcard.com/report/github.com/intelcon-group/jimi-vl103m)
+[![Go Report Card](https://goreportcard.com/badge/github.com/fcode09/jimi-vl103m)](https://goreportcard.com/report/github.com/fcode09/jimi-vl103m)
 
 **Professional Go library for decoding and encoding the Jimi VL103M GPS Tracker protocol (JM-VL03)** manufactured by Shenzhen Concox Information Technology Co., Ltd.
 
@@ -21,7 +21,7 @@
 ## Installation
 
 ```bash
-go get github.com/intelcon-group/jimi-vl103m
+go get github.com/fcode09/jimi-vl103m
 ```
 
 ## Quick Start
@@ -36,8 +36,8 @@ import (
     "fmt"
     "log"
     
-    "github.com/intelcon-group/jimi-vl103m/pkg/jimi"
-    "github.com/intelcon-group/jimi-vl103m/pkg/jimi/packet"
+    "github.com/fcode09/jimi-vl103m/pkg/jimi"
+    "github.com/fcode09/jimi-vl103m/pkg/jimi/packet"
 )
 
 func main() {
@@ -73,9 +73,9 @@ package main
 import (
     "net"
     
-    "github.com/intelcon-group/jimi-vl103m/pkg/jimi"
-    "github.com/intelcon-group/jimi-vl103m/pkg/jimi/encoder"
-    "github.com/intelcon-group/jimi-vl103m/pkg/jimi/packet"
+    "github.com/fcode09/jimi-vl103m/pkg/jimi"
+    "github.com/fcode09/jimi-vl103m/pkg/jimi/encoder"
+    "github.com/fcode09/jimi-vl103m/pkg/jimi/packet"
 )
 
 func main() {
@@ -271,9 +271,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Support
 
-- 📧 Email: support@intelcon-group.com
-- 🐛 Issues: [GitHub Issues](https://github.com/intelcon-group/jimi-vl103m/issues)
-- 📖 Documentation: [GitHub Wiki](https://github.com/intelcon-group/jimi-vl103m/wiki)
+- 📧 Email: support@fcode09.com
+- 🐛 Issues: [GitHub Issues](https://github.com/fcode09/jimi-vl103m/issues)
+- 📖 Documentation: [GitHub Wiki](https://github.com/fcode09/jimi-vl103m/wiki)
 
 ---
 
