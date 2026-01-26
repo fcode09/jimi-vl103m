@@ -7,8 +7,8 @@ import (
 	"time"
 	"unicode/utf16"
 
-	"github.com/intelcon-group/jimi-vl103m/pkg/jimi/packet"
-	"github.com/intelcon-group/jimi-vl103m/pkg/jimi/protocol"
+	"github.com/fcode09/jimi-vl103m/pkg/jimi/packet"
+	"github.com/fcode09/jimi-vl103m/pkg/jimi/protocol"
 )
 
 // ChineseAddressParser parses Chinese address response packets (Protocol 0x17)

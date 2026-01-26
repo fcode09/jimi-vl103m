@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/intelcon-group/jimi-vl103m/pkg/jimi/packet"
+	"github.com/fcode09/jimi-vl103m/pkg/jimi/packet"
 )
 
 // Parser is the interface that all protocol parsers must implement

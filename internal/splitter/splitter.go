@@ -3,7 +3,7 @@ package splitter
 import (
 	"fmt"
 
-	"github.com/intelcon-group/jimi-vl103m/pkg/jimi/protocol"
+	"github.com/fcode09/jimi-vl103m/pkg/jimi/protocol"
 )
 
 // SplitPackets splits concatenated packets from a TCP stream

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/intelcon-group/jimi-vl103m/pkg/jimi/protocol"
+	"github.com/fcode09/jimi-vl103m/pkg/jimi/protocol"
 )
 
 // InfoTransferPacket represents an information transfer packet (Protocol 0x94)

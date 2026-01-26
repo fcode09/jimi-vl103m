@@ -9,8 +9,8 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/intelcon-group/jimi-vl103m/pkg/jimi"
-	"github.com/intelcon-group/jimi-vl103m/pkg/jimi/packet"
+	"github.com/fcode09/jimi-vl103m/pkg/jimi"
+	"github.com/fcode09/jimi-vl103m/pkg/jimi/packet"
 )
 
 func main() {
