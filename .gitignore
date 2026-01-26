@@ -30,3 +30,19 @@ go.work.sum
 # Editor/IDE
 # .idea/
 # .vscode/
+
+# Project-specific ignores
+PHASE_*_SUMMARY.md
+PHASE_*_PROGRESS.md
+PROJECT_STATUS.md
+SETUP_VERIFICATION.md
+ANALYSIS_REPORT.md
+BUGFIX_REPORT.md
+CHANGELOG.md
+MISSING_PROTOCOLS_REPORT.md
+IMPLEMENTATION_STATUS.md
+# Project-specific ignores
+test-library.zip
+gps-server
+.claude
+
