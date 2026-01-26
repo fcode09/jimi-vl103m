@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/intelcon-group/jimi-vl103m/internal/parser"
-	"github.com/intelcon-group/jimi-vl103m/internal/splitter"
-	"github.com/intelcon-group/jimi-vl103m/internal/validator"
-	"github.com/intelcon-group/jimi-vl103m/pkg/jimi/packet"
-	"github.com/intelcon-group/jimi-vl103m/pkg/jimi/protocol"
+	"github.com/fcode09/jimi-vl103m/internal/parser"
+	"github.com/fcode09/jimi-vl103m/internal/splitter"
+	"github.com/fcode09/jimi-vl103m/internal/validator"
+	"github.com/fcode09/jimi-vl103m/pkg/jimi/packet"
+	"github.com/fcode09/jimi-vl103m/pkg/jimi/protocol"
 )
 
 // Decoder is the main entry point for decoding VL103M protocol packets

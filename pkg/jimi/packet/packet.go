@@ -3,7 +3,7 @@ package packet
 import (
 	"time"
 
-	"github.com/intelcon-group/jimi-vl103m/pkg/jimi/protocol"
+	"github.com/fcode09/jimi-vl103m/pkg/jimi/protocol"
 )
 
 // Packet is the base interface for all decoded packets

@@ -13,7 +13,7 @@ linters-settings:
   lll:
     line-length: 140
   goimports:
-    local-prefixes: github.com/intelcon-group/jimi-vl103m
+    local-prefixes: github.com/fcode09/jimi-vl103m
   gocritic:
     enabled-tags:
       - diagnostic

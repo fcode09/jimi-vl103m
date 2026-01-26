@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"unicode/utf16"
 
-	"github.com/intelcon-group/jimi-vl103m/internal/validator"
-	"github.com/intelcon-group/jimi-vl103m/pkg/jimi/protocol"
+	"github.com/fcode09/jimi-vl103m/internal/validator"
+	"github.com/fcode09/jimi-vl103m/pkg/jimi/protocol"
 )
 
 // AddressResponseParams contains parameters for creating address response packets

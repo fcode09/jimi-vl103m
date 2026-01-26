@@ -3,8 +3,8 @@ package parser
 import (
 	"time"
 
-	"github.com/intelcon-group/jimi-vl103m/pkg/jimi/packet"
-	"github.com/intelcon-group/jimi-vl103m/pkg/jimi/protocol"
+	"github.com/fcode09/jimi-vl103m/pkg/jimi/packet"
+	"github.com/fcode09/jimi-vl103m/pkg/jimi/protocol"
 )
 
 // TimeCalibrationParser parses time calibration request packets (Protocol 0x8A)

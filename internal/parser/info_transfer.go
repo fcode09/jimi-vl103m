@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/intelcon-group/jimi-vl103m/internal/codec"
-	"github.com/intelcon-group/jimi-vl103m/pkg/jimi/packet"
-	"github.com/intelcon-group/jimi-vl103m/pkg/jimi/protocol"
+	"github.com/fcode09/jimi-vl103m/internal/codec"
+	"github.com/fcode09/jimi-vl103m/pkg/jimi/packet"
+	"github.com/fcode09/jimi-vl103m/pkg/jimi/protocol"
 )
 
 // InfoTransferParser parses information transfer packets (Protocol 0x94)

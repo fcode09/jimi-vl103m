@@ -4,8 +4,8 @@ import (
 	"encoding/hex"
 	"testing"
 
-	"github.com/intelcon-group/jimi-vl103m/pkg/jimi/packet"
-	"github.com/intelcon-group/jimi-vl103m/pkg/jimi/protocol"
+	"github.com/fcode09/jimi-vl103m/pkg/jimi/packet"
+	"github.com/fcode09/jimi-vl103m/pkg/jimi/protocol"
 )
 
 func TestNewDecoder(t *testing.T) {

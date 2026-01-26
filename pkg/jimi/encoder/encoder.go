@@ -17,8 +17,8 @@ package encoder
 import (
 	"time"
 
-	"github.com/intelcon-group/jimi-vl103m/internal/validator"
-	"github.com/intelcon-group/jimi-vl103m/pkg/jimi/protocol"
+	"github.com/fcode09/jimi-vl103m/internal/validator"
+	"github.com/fcode09/jimi-vl103m/pkg/jimi/protocol"
 )
 
 // Encoder creates response packets for the VL103M protocol
