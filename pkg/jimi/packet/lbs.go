@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/intelcon-group/jimi-vl103m/pkg/jimi/protocol"
-	"github.com/intelcon-group/jimi-vl103m/pkg/jimi/types"
+	"github.com/fcode09/jimi-vl103m/pkg/jimi/protocol"
+	"github.com/fcode09/jimi-vl103m/pkg/jimi/types"
 )
 
 // LBSPacket represents an LBS (Location Based Service) packet (Protocol 0x28)

@@ -2,7 +2,7 @@
 
 [![Go Version](https://img.shields.io/badge/Go-1.21+-00ADD8?style=flat&logo=go)](https://golang.org)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Go Report Card](https://goreportcard.com/badge/github.com/intelcon-group/jimi-vl103m)](https://goreportcard.com/report/github.com/intelcon-group/jimi-vl103m)
+[![Go Report Card](https://goreportcard.com/badge/github.com/fcode09/jimi-vl103m)](https://goreportcard.com/report/github.com/fcode09/jimi-vl103m)
 
 Professional Go library for decoding and encoding the Jimi VL103M GPS Tracker protocol (JM-VL03) manufactured by Shenzhen Concox Information Technology Co., Ltd.
 
@@ -34,7 +34,7 @@ This library provides complete support for the JM-VL03 protocol version 1.1.2, i
 ## Installation
 
 ```bash
-go get github.com/intelcon-group/jimi-vl103m
+go get github.com/fcode09/jimi-vl103m
 ```
 
 Requirements:
@@ -53,8 +53,8 @@ import (
     "fmt"
     "log"
     
-    "github.com/intelcon-group/jimi-vl103m/pkg/jimi"
-    "github.com/intelcon-group/jimi-vl103m/pkg/jimi/packet"
+    "github.com/fcode09/jimi-vl103m/pkg/jimi"
+    "github.com/fcode09/jimi-vl103m/pkg/jimi/packet"
 )
 
 func main() {
@@ -102,9 +102,9 @@ import (
     "log"
     "net"
     
-    "github.com/intelcon-group/jimi-vl103m/pkg/jimi"
-    "github.com/intelcon-group/jimi-vl103m/pkg/jimi/encoder"
-    "github.com/intelcon-group/jimi-vl103m/pkg/jimi/packet"
+    "github.com/fcode09/jimi-vl103m/pkg/jimi"
+    "github.com/fcode09/jimi-vl103m/pkg/jimi/encoder"
+    "github.com/fcode09/jimi-vl103m/pkg/jimi/packet"
 )
 
 func main() {

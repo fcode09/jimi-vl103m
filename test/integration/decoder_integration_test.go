@@ -4,10 +4,10 @@ import (
 	"encoding/hex"
 	"testing"
 
-	"github.com/intelcon-group/jimi-vl103m/internal/testdata/packets"
-	"github.com/intelcon-group/jimi-vl103m/pkg/jimi"
-	"github.com/intelcon-group/jimi-vl103m/pkg/jimi/packet"
-	"github.com/intelcon-group/jimi-vl103m/pkg/jimi/protocol"
+	"github.com/fcode09/jimi-vl103m/internal/testdata/packets"
+	"github.com/fcode09/jimi-vl103m/pkg/jimi"
+	"github.com/fcode09/jimi-vl103m/pkg/jimi/packet"
+	"github.com/fcode09/jimi-vl103m/pkg/jimi/protocol"
 )
 
 // TestDecodeAllValidPackets tests decoding of all valid test packets

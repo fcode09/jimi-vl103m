@@ -38,7 +38,7 @@ func NewCourseStatusFromBytes(data []byte) (CourseStatus, error) {
 
 	return CourseStatus{
 		Course:          course,
-		IsGPSRealtime:   (byte1 & 0x20) != 0, // bit5
+		IsGPSRealtime:   (byte1 & 0x20) == 0, // bit5: 0=real-time, 1=differential
 		IsPositioned:    (byte1 & 0x10) != 0, // bit4
 		IsEastLongitude: (byte1 & 0x08) == 0, // bit3: 0=East, 1=West
 		IsNorthLatitude: (byte1 & 0x04) != 0, // bit2: 1=North, 0=South
@@ -74,8 +74,8 @@ func NewCourseStatus(course uint16, isRealtime, isPositioned, isEast, isNorth bo
 func (c CourseStatus) Bytes() []byte {
 	var byte1 byte
 
-	// Set GPS realtime bit (bit5)
-	if c.IsGPSRealtime {
+	// Set GPS realtime bit (bit5): 0=real-time, 1=differential
+	if !c.IsGPSRealtime {
 		byte1 |= 0x20
 	}
 

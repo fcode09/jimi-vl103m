@@ -1,4 +1,4 @@
-module github.com/intelcon-group/jimi-vl103m
+module github.com/fcode09/jimi-vl103m
 
 go 1.21
 

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/intelcon-group/jimi-vl103m/pkg/jimi/protocol"
+	"github.com/fcode09/jimi-vl103m/pkg/jimi/protocol"
 )
 
 // TerminalInfo represents the terminal information status byte
