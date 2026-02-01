@@ -14,8 +14,9 @@ type Parser interface {
 
 	// Parse decodes the raw packet data into a typed Packet
 	// The data parameter contains the full packet (including start bit, length, etc.)
+	// The ctx parameter provides parsing context and configuration
 	// Returns the parsed packet or an error if parsing fails
-	Parse(data []byte) (packet.Packet, error)
+	Parse(data []byte, ctx Context) (packet.Packet, error)
 
 	// Name returns the human-readable name of this parser
 	Name() string
@@ -98,12 +99,16 @@ func (r *Registry) Get(protocolNum byte) (Parser, bool) {
 
 // Parse uses the appropriate parser to decode the packet
 func (r *Registry) Parse(protocolNum byte, data []byte) (packet.Packet, error) {
-	p, ok := r.Get(protocolNum)
+	r.mu.RLock()
+	p, ok := r.parsers[protocolNum]
+	ctx := r.context
+	r.mu.RUnlock()
+
 	if !ok {
 		return nil, fmt.Errorf("no parser registered for protocol 0x%02X", protocolNum)
 	}
 
-	return p.Parse(data)
+	return p.Parse(data, ctx)
 }
 
 // Has returns true if a parser for the protocol number is registered

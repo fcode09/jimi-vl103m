@@ -41,7 +41,7 @@ func NewAlarmParser() *AlarmParser {
 // - Language: 1 byte (Alert and Language byte 2)
 // - Mileage: 4 bytes
 // Total content: 33 bytes minimum
-func (p *AlarmParser) Parse(data []byte) (packet.Packet, error) {
+func (p *AlarmParser) Parse(data []byte, ctx Context) (packet.Packet, error) {
 	content, err := ExtractContent(data)
 	if err != nil {
 		return nil, fmt.Errorf("alarm: %w", err)
@@ -181,7 +181,7 @@ func NewAlarmMultiFenceParser() *AlarmMultiFenceParser {
 
 // Parse implements Parser interface
 // Multi-fence alarm packet has the same structure as alarm but with fence ID
-func (p *AlarmMultiFenceParser) Parse(data []byte) (packet.Packet, error) {
+func (p *AlarmMultiFenceParser) Parse(data []byte, ctx Context) (packet.Packet, error) {
 	content, err := ExtractContent(data)
 	if err != nil {
 		return nil, fmt.Errorf("alarm_multi_fence: %w", err)
@@ -302,7 +302,7 @@ func NewAlarm4GParser() *Alarm4GParser {
 	}
 }
 
-func (p *Alarm4GParser) Parse(data []byte) (packet.Packet, error) {
+func (p *Alarm4GParser) Parse(data []byte, ctx Context) (packet.Packet, error) {
 	content, err := ExtractContent(data)
 	if err != nil {
 		return nil, fmt.Errorf("alarm_4g: %w", err)

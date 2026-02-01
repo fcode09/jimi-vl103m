@@ -67,10 +67,11 @@ func TestChineseAddressParser_Parse(t *testing.T) {
 	}
 
 	parser := NewChineseAddressParser()
+	ctx := DefaultContext()
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			pkt, err := parser.Parse(tt.data)
+			pkt, err := parser.Parse(tt.data, ctx)
 			if tt.wantErr {
 				assert.Error(t, err)
 				return
@@ -140,10 +141,11 @@ func TestEnglishAddressParser_Parse(t *testing.T) {
 	}
 
 	parser := NewEnglishAddressParser()
+	ctx := DefaultContext()
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			pkt, err := parser.Parse(tt.data)
+			pkt, err := parser.Parse(tt.data, ctx)
 			if tt.wantErr {
 				assert.Error(t, err)
 				return

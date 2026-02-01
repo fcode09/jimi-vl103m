@@ -32,9 +32,27 @@ func NewDecoder(opts ...Option) *Decoder {
 		opt(&options)
 	}
 
+	// Create a new registry and copy parsers from default registry
+	registry := parser.NewRegistry()
+	defaultReg := parser.DefaultRegistry()
+
+	// Copy all registered parsers from default registry
+	for _, proto := range defaultReg.List() {
+		if p, ok := defaultReg.Get(proto); ok {
+			registry.Register(p)
+		}
+	}
+
+	// Configure context based on options
+	registry.SetContext(parser.Context{
+		StrictMode:     options.StrictMode,
+		ValidateIMEI:   options.ValidateIMEIChecksum,
+		TimezoneOffset: 0,
+	})
+
 	return &Decoder{
 		opts:     options,
-		registry: parser.DefaultRegistry(),
+		registry: registry,
 	}
 }
 

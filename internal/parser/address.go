@@ -34,7 +34,7 @@ func NewChineseAddressParser() *ChineseAddressParser {
 // - Phone Number: 21 bytes (ASCII, "0" repeated for alarm packets)
 // - Separator "##": 2 bytes (ASCII)
 // Minimum content: 1 + 4 + 8 + 2 + 0 + 2 + 21 + 2 = 40 bytes
-func (p *ChineseAddressParser) Parse(data []byte) (packet.Packet, error) {
+func (p *ChineseAddressParser) Parse(data []byte, ctx Context) (packet.Packet, error) {
 	content, err := ExtractContent(data)
 	if err != nil {
 		return nil, fmt.Errorf("chinese_address: %w", err)
@@ -153,7 +153,7 @@ func NewEnglishAddressParser() *EnglishAddressParser {
 // - Phone Number: 21 bytes (ASCII)
 // - Separator "##": 2 bytes (ASCII)
 // Minimum content: 40 bytes
-func (p *EnglishAddressParser) Parse(data []byte) (packet.Packet, error) {
+func (p *EnglishAddressParser) Parse(data []byte, ctx Context) (packet.Packet, error) {
 	content, err := ExtractContent(data)
 	if err != nil {
 		return nil, fmt.Errorf("english_address: %w", err)

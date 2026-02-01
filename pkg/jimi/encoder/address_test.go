@@ -238,7 +238,8 @@ func TestRoundTripChineseAddress(t *testing.T) {
 	require.NoError(t, err)
 
 	chineseParser := parser.NewChineseAddressParser()
-	pkt, err := chineseParser.Parse(encoded)
+	ctx := parser.DefaultContext()
+	pkt, err := chineseParser.Parse(encoded, ctx)
 	require.NoError(t, err)
 
 	addrPkt, ok := pkt.(*packet.AddressResponsePacket)
@@ -264,7 +265,8 @@ func TestRoundTripEnglishAddress(t *testing.T) {
 	require.NoError(t, err)
 
 	englishParser := parser.NewEnglishAddressParser()
-	pkt, err := englishParser.Parse(encoded)
+	ctx := parser.DefaultContext()
+	pkt, err := englishParser.Parse(encoded, ctx)
 	require.NoError(t, err)
 
 	addrPkt, ok := pkt.(*packet.AddressResponsePacket)

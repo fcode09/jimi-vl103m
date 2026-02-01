@@ -52,8 +52,22 @@ func NewIMEIFromBytes(data []byte) (IMEI, error) {
 	}
 
 	// IMEI is 15 digits, but we got 16 from 8 bytes
-	// Typically the last nibble is padding (0 or F)
-	imeiStr := string(digits[:15])
+	// The first digit is typically padding (0), so we take the last 15 digits
+	// Example: "0049015420323751" → "490154203237517"
+	startIdx := 0
+	if len(digits) > 15 {
+		// Skip leading zero if present (padding)
+		if digits[0] == '0' {
+			startIdx = 1
+		}
+	}
+
+	endIdx := startIdx + 15
+	if endIdx > len(digits) {
+		return IMEI{}, fmt.Errorf("insufficient digits for IMEI: need 15, got %d", len(digits)-startIdx)
+	}
+
+	imeiStr := string(digits[startIdx:endIdx])
 
 	return NewIMEI(imeiStr)
 }
@@ -86,7 +100,21 @@ func NewIMEIFromBytesUnchecked(data []byte) (IMEI, error) {
 		digits = append(digits, '0'+lowNibble)
 	}
 
-	imeiStr := string(digits[:15])
+	// The first digit is typically padding (0), so we take the last 15 digits
+	startIdx := 0
+	if len(digits) > 15 {
+		// Skip leading zero if present (padding)
+		if digits[0] == '0' {
+			startIdx = 1
+		}
+	}
+
+	endIdx := startIdx + 15
+	if endIdx > len(digits) {
+		return IMEI{}, fmt.Errorf("insufficient digits for IMEI: need 15, got %d", len(digits)-startIdx)
+	}
+
+	imeiStr := string(digits[startIdx:endIdx])
 	return NewIMEIUnchecked(imeiStr)
 }
 

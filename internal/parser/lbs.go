@@ -34,7 +34,7 @@ func NewLBSParser() *LBSParser {
 // - GSM Signal: 1 byte
 // - Upload Mode: 1 byte
 // Minimum content: 14 bytes, with status: 18 bytes
-func (p *LBSParser) Parse(data []byte) (packet.Packet, error) {
+func (p *LBSParser) Parse(data []byte, ctx Context) (packet.Packet, error) {
 	content, err := ExtractContent(data)
 	if err != nil {
 		return nil, fmt.Errorf("lbs: %w", err)
@@ -129,7 +129,7 @@ func NewLBS4GParser() *LBS4GParser {
 
 // Parse implements Parser interface
 // 4G LBS packet has extended LBS info with multiple cell towers
-func (p *LBS4GParser) Parse(data []byte) (packet.Packet, error) {
+func (p *LBS4GParser) Parse(data []byte, ctx Context) (packet.Packet, error) {
 	content, err := ExtractContent(data)
 	if err != nil {
 		return nil, fmt.Errorf("lbs_4g: %w", err)

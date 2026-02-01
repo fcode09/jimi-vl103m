@@ -77,6 +77,7 @@ func TestDecodeLoginPackets(t *testing.T) {
 	decoder := jimi.NewDecoder(
 		jimi.WithSkipCRC(),
 		jimi.WithStrictMode(false),
+		jimi.WithoutIMEIValidation(),
 	)
 
 	for _, tp := range packets.LoginPackets {

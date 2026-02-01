@@ -38,7 +38,7 @@ func NewLocationParser() *LocationParser {
 // - GPS Data Re-upload: 1 byte (0x00=Real-time, 0x01=Re-upload)
 // - Mileage Statistics: 4 bytes
 // Total content: 33 bytes minimum (all fields are MANDATORY per protocol spec)
-func (p *LocationParser) Parse(data []byte) (packet.Packet, error) {
+func (p *LocationParser) Parse(data []byte, ctx Context) (packet.Packet, error) {
 	content, err := ExtractContent(data)
 	if err != nil {
 		return nil, fmt.Errorf("location: %w", err)
@@ -168,7 +168,7 @@ func NewLocation4GParser() *Location4GParser {
 	}
 }
 
-func (p *Location4GParser) Parse(data []byte) (packet.Packet, error) {
+func (p *Location4GParser) Parse(data []byte, ctx Context) (packet.Packet, error) {
 	content, err := ExtractContent(data)
 	if err != nil {
 		return nil, fmt.Errorf("location_4g: %w", err)
