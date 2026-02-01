@@ -202,3 +202,75 @@ func TestLocationParser_SatelliteCount(t *testing.T) {
 
 	t.Logf("Satellites: %d", locPkt.Satellites)
 }
+
+func TestLocationParser_ACCStatus(t *testing.T) {
+	p := NewLocationParser()
+
+	// Test packet with ACC=ON (0x01) - Simulated packet from user
+	// Raw: 787822221A02010E02118901C31ADC07ABA0CA00189301361A1234005678010000003C00B90D0A
+	// The ACC byte is 0x01 (at position after LBS data), should be ON
+	dataACCOn, _ := hex.DecodeString("787822221A02010E02118901C31ADC07ABA0CA00189301361A1234005678010000003C00B90D0A")
+
+	pkt, err := p.Parse(dataACCOn)
+	if err != nil {
+		t.Fatalf("Parse failed for ACC=ON packet: %v", err)
+	}
+
+	locPkt := pkt.(*packet.LocationPacket)
+
+	if !locPkt.ACC {
+		t.Errorf("ACC should be ON (true), got OFF (false)")
+	}
+
+	if !locPkt.ACCOn() {
+		t.Errorf("ACCOn() should return true, got false")
+	}
+
+	t.Logf("ACC Status: %v (expected: true)", locPkt.ACC)
+
+	// Test packet with ACC=OFF (0x00)
+	// Same packet but with ACC byte changed to 0x00
+	dataACCOff, _ := hex.DecodeString("787822221A02010E02118901C31ADC07ABA0CA00189301361A1234005678000000003C00B80D0A")
+
+	pkt2, err := p.Parse(dataACCOff)
+	if err != nil {
+		t.Fatalf("Parse failed for ACC=OFF packet: %v", err)
+	}
+
+	locPkt2 := pkt2.(*packet.LocationPacket)
+
+	if locPkt2.ACC {
+		t.Errorf("ACC should be OFF (false), got ON (true)")
+	}
+
+	if locPkt2.ACCOn() {
+		t.Errorf("ACCOn() should return false, got true")
+	}
+
+	t.Logf("ACC Status: %v (expected: false)", locPkt2.ACC)
+}
+
+func TestLocation4GParser_ACCStatus(t *testing.T) {
+	p := NewLocation4GParser()
+
+	// Test packet 4G with ACC=ON (0x01) - Simulated packet from user
+	// Raw: 78782DA01A02010E04038A01C3BF0307ABCB8500193501CC000000C60D0000000002CE68EA010000000000000004652A0D0A
+	dataACCOn, _ := hex.DecodeString("78782DA01A02010E04038A01C3BF0307ABCB8500193501CC000000C60D0000000002CE68EA010000000000000004652A0D0A")
+
+	pkt, err := p.Parse(dataACCOn)
+	if err != nil {
+		t.Fatalf("Parse failed for 4G ACC=ON packet: %v", err)
+	}
+
+	locPkt := pkt.(*packet.Location4GPacket)
+
+	if !locPkt.ACC {
+		t.Errorf("ACC should be ON (true), got OFF (false)")
+	}
+
+	if !locPkt.ACCOn() {
+		t.Errorf("ACCOn() should return true, got false")
+	}
+
+	t.Logf("4G ACC Status: %v (expected: true)", locPkt.ACC)
+}

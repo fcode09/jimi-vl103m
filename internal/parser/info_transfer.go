@@ -56,33 +56,19 @@ func (p *InfoTransferParser) Parse(data []byte) (packet.Packet, error) {
 	// Parse specific sub-protocol data
 	switch subProtocol {
 	case protocol.InfoTypeExternalVoltage:
-		// External voltage: 2 bytes, value in millivolts
-		if len(infoData) >= 2 {
-			pkt.ExternalVoltage = uint16(infoData[0])<<8 | uint16(infoData[1])
-		}
+		p.parseExternalVoltage(pkt, infoData)
 
 	case protocol.InfoTypeICCID:
-		// ICCID: 10 bytes BCD encoded (20 digits)
-		if len(infoData) >= 10 {
-			iccid, err := codec.DecodeICCID(infoData[:10])
-			if err == nil {
-				pkt.ICCID = iccid
-			}
-		}
+		p.parseICCIDInfo(pkt, infoData)
 
 	case protocol.InfoTypeGPSStatus:
-		// GPS status: 1 byte
-		if len(infoData) >= 1 {
-			pkt.GPSStatus = protocol.GPSModuleStatus(infoData[0])
-		}
+		p.parseGPSStatus(pkt, infoData)
 
 	case protocol.InfoTypeTerminalSync:
-		// Terminal synchronization info - variable structure
-		// Just store raw data for now
+		p.parseTerminalSync(pkt, infoData)
 
 	case protocol.InfoTypeDoorStatus:
-		// Door status - typically 1 byte
-		// Just store raw data for now
+		p.parseDoorStatus(pkt, infoData)
 
 	case protocol.InfoTypeSelfCheck:
 		// Self check result - variable structure
@@ -90,6 +76,162 @@ func (p *InfoTransferParser) Parse(data []byte) (packet.Packet, error) {
 	}
 
 	return pkt, nil
+}
+
+// parseExternalVoltage parses external battery voltage
+// Format: 2 bytes, value = decimal / 100 = voltage in V
+// Example: 0x04 0x9F = 1183 decimal = 11.83V
+func (p *InfoTransferParser) parseExternalVoltage(pkt *packet.InfoTransferPacket, data []byte) {
+	if len(data) >= 2 {
+		pkt.ExternalVoltage = uint16(data[0])<<8 | uint16(data[1])
+	}
+}
+
+// parseICCIDInfo parses ICCID/IMEI/IMSI information
+// Format:
+// - IMEI: 8 bytes BCD
+// - IMSI: 8 bytes BCD
+// - ICCID: 10 bytes BCD
+func (p *InfoTransferParser) parseICCIDInfo(pkt *packet.InfoTransferPacket, data []byte) {
+	offset := 0
+
+	// IMEI: 8 bytes
+	if len(data) >= offset+8 {
+		imei, err := codec.DecodeBCD(data[offset : offset+8])
+		if err == nil {
+			pkt.IMEI = imei
+		}
+		offset += 8
+	}
+
+	// IMSI: 8 bytes
+	if len(data) >= offset+8 {
+		imsi, err := codec.DecodeBCD(data[offset : offset+8])
+		if err == nil {
+			pkt.IMSI = imsi
+		}
+		offset += 8
+	}
+
+	// ICCID: 10 bytes
+	if len(data) >= offset+10 {
+		iccid, err := codec.DecodeICCID(data[offset : offset+10])
+		if err == nil {
+			pkt.ICCID = iccid
+		}
+	}
+}
+
+// parseGPSStatus parses GPS module status
+// Format:
+// - GPS module status: 1 byte
+// - Number of satellites in fix: 1 byte
+// - GPS1-N strength: 1 byte each
+// - Number of visible GPS satellites: 1 byte
+// - Visible GPS1-N strength: 1 byte each
+// - BDS module status: 1 byte (if present)
+// - ... (similar to GPS)
+func (p *InfoTransferParser) parseGPSStatus(pkt *packet.InfoTransferPacket, data []byte) {
+	if len(data) < 1 {
+		return
+	}
+
+	pkt.GPSStatus = protocol.GPSModuleStatus(data[0])
+
+	// Parse detailed GPS status if more data available
+	if len(data) >= 2 {
+		gpsInfo := &packet.GPSStatusData{
+			ModuleStatus: protocol.GPSModuleStatus(data[0]),
+		}
+
+		offset := 1
+
+		// Number of satellites in fix
+		if offset < len(data) {
+			gpsInfo.SatellitesInFix = int(data[offset])
+			offset++
+
+			// Read satellite strengths
+			for i := 0; i < gpsInfo.SatellitesInFix && offset < len(data); i++ {
+				gpsInfo.SatelliteStrengths = append(gpsInfo.SatelliteStrengths, int(data[offset]))
+				offset++
+			}
+		}
+
+		// Number of visible satellites
+		if offset < len(data) {
+			gpsInfo.VisibleSatellites = int(data[offset])
+			offset++
+
+			// Read visible satellite strengths
+			for i := 0; i < gpsInfo.VisibleSatellites && offset < len(data); i++ {
+				gpsInfo.VisibleStrengths = append(gpsInfo.VisibleStrengths, int(data[offset]))
+				offset++
+			}
+		}
+
+		// BDS module status (if present)
+		if offset < len(data) {
+			gpsInfo.BDSModuleStatus = protocol.GPSModuleStatus(data[offset])
+			offset++
+
+			// BDS satellites in fix
+			if offset < len(data) {
+				gpsInfo.BDSSatellitesInFix = int(data[offset])
+				offset++
+
+				for i := 0; i < gpsInfo.BDSSatellitesInFix && offset < len(data); i++ {
+					gpsInfo.BDSSatelliteStrengths = append(gpsInfo.BDSSatelliteStrengths, int(data[offset]))
+					offset++
+				}
+			}
+
+			// BDS visible satellites
+			if offset < len(data) {
+				gpsInfo.BDSVisibleSatellites = int(data[offset])
+				offset++
+
+				for i := 0; i < gpsInfo.BDSVisibleSatellites && offset < len(data); i++ {
+					gpsInfo.BDSVisibleStrengths = append(gpsInfo.BDSVisibleStrengths, int(data[offset]))
+					offset++
+				}
+			}
+		}
+
+		pkt.GPSStatusInfo = gpsInfo
+	}
+}
+
+// parseTerminalSync parses terminal status synchronization data
+// Format: ASCII string with key=value pairs separated by semicolons
+// Example: ALM1=CC;ALM2=C4;ALM3=DC;STA1=C0;DYD=01;SOS=945538609,,;CENTER=+51974867548;GFENCE1,OFF,...;IMSI=...;ICCID=...;
+func (p *InfoTransferParser) parseTerminalSync(pkt *packet.InfoTransferPacket, data []byte) {
+	// Data is ASCII string
+	dataStr := string(data)
+
+	// Parse the terminal sync string
+	pkt.TerminalSync = packet.ParseTerminalSyncString(dataStr)
+
+	// Also populate top-level fields if available
+	if pkt.TerminalSync != nil {
+		if pkt.TerminalSync.ICCID != "" {
+			pkt.ICCID = pkt.TerminalSync.ICCID
+		}
+		if pkt.TerminalSync.IMSI != "" {
+			pkt.IMSI = pkt.TerminalSync.IMSI
+		}
+	}
+}
+
+// parseDoorStatus parses door status byte
+// Format: 1 byte with bit flags
+// - bit0: Door status (1=ON/Open, 0=OFF/Closed)
+// - bit1: Trigger status (1=Level high, 0=Level low)
+// - bit2: I/O port status (1=High, 0=Low)
+func (p *InfoTransferParser) parseDoorStatus(pkt *packet.InfoTransferPacket, data []byte) {
+	if len(data) >= 1 {
+		pkt.DoorStatus = packet.ParseDoorStatusByte(data[0])
+	}
 }
 
 // init registers the info transfer parser with the default registry

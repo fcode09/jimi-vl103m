@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/intelcon-group/jimi-vl103m/pkg/jimi/protocol"
+	"github.com/intelcon-group/jimi-vl103m/pkg/jimi/types"
 )
 
 // OnlineCommandPacket represents an online command packet (Protocol 0x80)
@@ -115,25 +116,41 @@ func (p *CommandResponsePacket) String() string {
 }
 
 // GPSAddressRequestPacket represents a GPS address request packet (Protocol 0x2A)
-// The device sends GPS coordinates and requests the server to return the address
+// Structure according to JM-VL03 documentation:
+// - DateTime: 6 bytes (YY MM DD HH MM SS)
+// - GPS Info: 1 byte (satellites in low nibble)
+// - Latitude: 4 bytes (raw / 1,800,000)
+// - Longitude: 4 bytes (raw / 1,800,000)
+// - Speed: 1 byte (km/h)
+// - Course/Status: 2 bytes (heading + status flags)
+// - Phone Number: 21 bytes (ASCII)
+// - Alert/Language: 2 bytes (AlarmType + Language)
+// Total content: 41 bytes
 type GPSAddressRequestPacket struct {
 	BasePacket
 
-	// Coordinates are the GPS coordinates for address lookup
-	Coordinates string
+	// GPS Data
+	DateTime     types.DateTime
+	Satellites   uint8
+	Coordinates  types.Coordinates
+	Speed        uint8
+	CourseStatus types.CourseStatus
 
-	// Language is the preferred response language
-	Language protocol.Language
+	// Request-specific data
+	PhoneNumber string // 21 bytes ASCII, trimmed
+	AlarmType   protocol.AlarmType
+	Language    protocol.Language
 }
 
 // NewGPSAddressRequestPacket creates a new GPSAddressRequestPacket
-func NewGPSAddressRequestPacket(coords string, lang protocol.Language) *GPSAddressRequestPacket {
+func NewGPSAddressRequestPacket(coords types.Coordinates, phone string, lang protocol.Language) *GPSAddressRequestPacket {
 	return &GPSAddressRequestPacket{
 		BasePacket: BasePacket{
 			ProtocolNum: protocol.ProtocolGPSAddressRequest,
 			ParsedAt:    time.Now(),
 		},
 		Coordinates: coords,
+		PhoneNumber: phone,
 		Language:    lang,
 	}
 }
@@ -143,9 +160,39 @@ func (p *GPSAddressRequestPacket) Type() string {
 	return "GPS Address Request"
 }
 
-// Timestamp implements Packet interface
+// Timestamp implements PacketWithTimestamp interface
 func (p *GPSAddressRequestPacket) Timestamp() time.Time {
-	return p.ParsedAt
+	return p.DateTime.Time
+}
+
+// HasTimestamp implements PacketWithTimestamp interface
+func (p *GPSAddressRequestPacket) HasTimestamp() bool {
+	return !p.DateTime.IsZero()
+}
+
+// HasLocation implements PacketWithLocation interface
+func (p *GPSAddressRequestPacket) HasLocation() bool {
+	return p.Coordinates.IsValid()
+}
+
+// IsPositioned implements PacketWithLocation interface
+func (p *GPSAddressRequestPacket) IsPositioned() bool {
+	return p.CourseStatus.GetIsPositioned()
+}
+
+// Latitude returns the signed latitude
+func (p *GPSAddressRequestPacket) Latitude() float64 {
+	return p.Coordinates.SignedLatitude()
+}
+
+// Longitude returns the signed longitude
+func (p *GPSAddressRequestPacket) Longitude() float64 {
+	return p.Coordinates.SignedLongitude()
+}
+
+// Heading returns the course/heading in degrees
+func (p *GPSAddressRequestPacket) Heading() uint16 {
+	return p.CourseStatus.GetCourse()
 }
 
 // Validate implements Packet interface
@@ -155,7 +202,15 @@ func (p *GPSAddressRequestPacket) Validate() error {
 
 // String returns a human-readable representation
 func (p *GPSAddressRequestPacket) String() string {
-	return fmt.Sprintf("GPSAddressRequestPacket{Coords: %s, Language: %s}", p.Coordinates, p.Language)
+	return fmt.Sprintf("GPSAddressRequestPacket{Time: %s, Pos: [%.6f, %.6f], Speed: %d km/h, Heading: %d°, Phone: %s, Alarm: %s, Lang: %s}",
+		p.DateTime,
+		p.Latitude(),
+		p.Longitude(),
+		p.Speed,
+		p.Heading(),
+		p.PhoneNumber,
+		p.AlarmType,
+		p.Language)
 }
 
 // AddressResponsePacket is defined in address.go

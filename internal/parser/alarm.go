@@ -60,9 +60,11 @@ func (p *AlarmParser) Parse(data []byte) (packet.Packet, error) {
 	}
 	offset += 6
 
-	// Parse GPS Info Length (1 byte)
+	// Parse GPS Info byte (1 byte)
+	// High nibble (bits 7-4): GPS Info Length indicator
+	// Low nibble (bits 3-0): Number of satellites
 	gpsInfoByte := content[offset]
-	satellites := (gpsInfoByte >> 4) & 0x0F
+	satellites := gpsInfoByte & 0x0F // Low nibble = satellites
 	offset++
 
 	// Parse Latitude (4 bytes)
@@ -319,8 +321,11 @@ func (p *Alarm4GParser) Parse(data []byte) (packet.Packet, error) {
 	}
 	offset += 6
 
+	// Parse GPS Info byte (1 byte)
+	// High nibble (bits 7-4): GPS Info Length indicator
+	// Low nibble (bits 3-0): Number of satellites
 	gpsInfoByte := content[offset]
-	satellites := (gpsInfoByte >> 4) & 0x0F
+	satellites := gpsInfoByte & 0x0F // Low nibble = satellites
 	offset++
 
 	latBytes := content[offset : offset+4]

@@ -13,16 +13,17 @@ type TerminalInfo struct {
 	raw byte
 }
 
-// Terminal information bit positions
+// Terminal information bit positions (per JM-VL03 protocol documentation)
+// Bits 3-5 contain alarm type, extracted separately
 const (
-	terminalBitOilElectricity = 0 // Bit 0: Oil/Electricity status (1=disconnected/power cut)
-	terminalBitGPSTracking    = 1 // Bit 1: GPS tracking (1=enabled)
-	terminalBitReserved2      = 2 // Bit 2: Reserved
-	terminalBitReserved3      = 3 // Bit 3: Reserved
-	terminalBitCharging       = 4 // Bit 4: Charging status (1=charging)
-	terminalBitACCStatus      = 5 // Bit 5: ACC status (1=high/on)
-	terminalBitDefense        = 6 // Bit 6: Defense/armed status (1=armed)
-	terminalBitReserved7      = 7 // Bit 7: Reserved
+	terminalBitDefense        = 0 // Bit 0: Defense/armed status (1=armed, 0=not armed)
+	terminalBitACCStatus      = 1 // Bit 1: ACC status (1=on, 0=off)
+	terminalBitCharging       = 2 // Bit 2: Charging status (1=charging with power, 0=without)
+	terminalBitAlarm0         = 3 // Bit 3: Alarm type bit 0
+	terminalBitAlarm1         = 4 // Bit 4: Alarm type bit 1
+	terminalBitAlarm2         = 5 // Bit 5: Alarm type bit 2
+	terminalBitGPSTracking    = 6 // Bit 6: GPS positioned/tracking (1=positioned, 0=not)
+	terminalBitOilElectricity = 7 // Bit 7: Oil/Electricity cut (1=cut, 0=restore)
 )
 
 // NewTerminalInfo creates a new TerminalInfo from a raw byte
@@ -65,6 +66,12 @@ func (t TerminalInfo) ACCOn() bool {
 // IsArmed returns true if the device is in defense/armed mode
 func (t TerminalInfo) IsArmed() bool {
 	return t.raw&(1<<terminalBitDefense) != 0
+}
+
+// AlarmTypeBits returns the alarm type encoded in bits 3-5
+// Values: 000=Normal, 001=Vibration, 010=PowerCut, 011=LowBattery, 100=SOS
+func (t TerminalInfo) AlarmTypeBits() byte {
+	return (t.raw >> 3) & 0x07 // Extract bits 3-5
 }
 
 // String returns a human-readable representation
