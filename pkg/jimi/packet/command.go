@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/intelcon-group/jimi-vl103m/pkg/jimi/protocol"
-	"github.com/intelcon-group/jimi-vl103m/pkg/jimi/types"
+	"github.com/fcode09/jimi-vl103m/pkg/jimi/protocol"
+	"github.com/fcode09/jimi-vl103m/pkg/jimi/types"
 )
 
 // OnlineCommandPacket represents an online command packet (Protocol 0x80)
