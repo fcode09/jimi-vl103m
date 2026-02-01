@@ -57,10 +57,12 @@ func (p *LocationParser) Parse(data []byte) (packet.Packet, error) {
 	}
 	offset += 6
 
-	// Parse GPS Info Length (1 byte)
+	// Parse GPS Info byte (1 byte)
+	// High nibble (bits 7-4): GPS Info Length indicator
+	// Low nibble (bits 3-0): Number of satellites
 	gpsInfoByte := content[offset]
-	satellites := (gpsInfoByte >> 4) & 0x0F
-	// gpsDataLength := (gpsInfoByte & 0x0F) * 2 // Not used directly
+	satellites := gpsInfoByte & 0x0F // Low nibble = satellites
+	// gpsInfoLength := (gpsInfoByte >> 4) & 0x0F // High nibble = GPS data length indicator (not used)
 	offset++
 
 	// Parse Latitude (4 bytes)
@@ -101,16 +103,14 @@ func (p *LocationParser) Parse(data []byte) (packet.Packet, error) {
 	}
 	offset += lbsConsumed
 
-	// Parse ACC (1 byte) - Protocol 0x22 uses simple boolean ACC field
-	// According to protocol spec: 0x00=ACC off, 0x01=ACC on
-	// Convert to TerminalInfo format by setting bit 1 (ACC bit)
+	// Parse ACC (1 byte) - GPS Location packets use dedicated byte, not bit field
+	// According to doc: 0x00=ACC off, 0x01=ACC on
+	// Note: This is different from heartbeat/alarm packets where ACC is bit 1 of status byte
 	accByte := content[offset]
-	var terminalInfo types.TerminalInfo
-	if accByte == 0x01 {
-		terminalInfo = types.NewTerminalInfoBuilder().SetACCOn(true).Build()
-	} else {
-		terminalInfo = types.NewTerminalInfoBuilder().SetACCOn(false).Build()
-	}
+	accOn := accByte == 0x01
+	// Create empty TerminalInfo since GPS location doesn't have the full status byte
+	// that TerminalInfo expects (which is designed for heartbeat/alarm packets)
+	terminalInfo := types.NewTerminalInfo(0)
 	offset++
 
 	// Parse Data Upload Mode (1 byte)
@@ -147,6 +147,7 @@ func (p *LocationParser) Parse(data []byte) (packet.Packet, error) {
 		LBSInfo:      lbsInfo,
 		HasStatus:    true,
 		TerminalInfo: terminalInfo,
+		ACC:          accOn, // GPS Location uses dedicated ACC byte (0x00/0x01)
 		UploadMode:   uploadMode,
 		IsReupload:   isReupload,
 		Mileage:      mileage,
@@ -189,9 +190,11 @@ func (p *Location4GParser) Parse(data []byte) (packet.Packet, error) {
 	}
 	offset += 6
 
-	// Parse GPS Info Length (1 byte)
+	// Parse GPS Info byte (1 byte)
+	// High nibble (bits 7-4): GPS Info Length indicator
+	// Low nibble (bits 3-0): Number of satellites
 	gpsInfoByte := content[offset]
-	satellites := (gpsInfoByte >> 4) & 0x0F
+	satellites := gpsInfoByte & 0x0F // Low nibble = satellites
 	offset++
 
 	// Parse Latitude (4 bytes)
@@ -234,16 +237,12 @@ func (p *Location4GParser) Parse(data []byte) (packet.Packet, error) {
 	mccmnc := uint32(lbsInfo.MCC)*1000 + uint32(lbsInfo.MNC)
 	offset += lbsConsumed
 
-	// Parse ACC (1 byte) - Protocol 0xA0 uses simple boolean ACC field
-	// According to protocol spec: 0x00=ACC off, 0x01=ACC on
-	// Convert to TerminalInfo format by setting bit 1 (ACC bit)
+	// Parse ACC (1 byte) - GPS Location 4G packets use dedicated byte, not bit field
+	// According to doc: 0x00=ACC off, 0x01=ACC on
 	accByte := content[offset]
-	var terminalInfo types.TerminalInfo
-	if accByte == 0x01 {
-		terminalInfo = types.NewTerminalInfoBuilder().SetACCOn(true).Build()
-	} else {
-		terminalInfo = types.NewTerminalInfoBuilder().SetACCOn(false).Build()
-	}
+	accOn := accByte == 0x01
+	// Create empty TerminalInfo since GPS location doesn't have the full status byte
+	terminalInfo := types.NewTerminalInfo(0)
 	offset++
 
 	// Parse Data Upload Mode (1 byte)
@@ -281,6 +280,7 @@ func (p *Location4GParser) Parse(data []byte) (packet.Packet, error) {
 			LBSInfo:      lbsInfo,
 			HasStatus:    true,
 			TerminalInfo: terminalInfo,
+			ACC:          accOn, // GPS Location 4G uses dedicated ACC byte (0x00/0x01)
 			UploadMode:   uploadMode,
 			IsReupload:   isReupload,
 			Mileage:      mileage,

@@ -178,6 +178,43 @@ func TestAlarmType_Criticality(t *testing.T) {
 	}
 }
 
+func TestAlarm4GParser_RealDevicePacket(t *testing.T) {
+	// Real device packet from user showing "PowerCut" but byte 49 should not have Bit 7 set
+	raw := "78782DA41A02010D2337CB01C3AF8807AC8B080018E41002CC100000C60D0000000002CE68CC4906040300FF001A3C160D0A"
+	data, _ := hex.DecodeString(raw)
+
+	parser := NewAlarm4GParser()
+	pkt, err := parser.Parse(data)
+	if err != nil {
+		t.Fatalf("Parse failed: %v", err)
+	}
+
+	alarmPkt := pkt.(*packet.Alarm4GPacket)
+
+	t.Logf("Raw TerminalInfo byte: 0x%02X (%08b)", alarmPkt.TerminalInfo.Raw(), alarmPkt.TerminalInfo.Raw())
+	t.Logf("Bit 7 (OilElectricityDisconnected): %v", alarmPkt.TerminalInfo.OilElectricityDisconnected())
+	t.Logf("Bit 1 (ACCOn): %v", alarmPkt.TerminalInfo.ACCOn())
+	t.Logf("Bit 0 (IsArmed): %v", alarmPkt.TerminalInfo.IsArmed())
+	t.Logf("Alarm bits (3-5): %03b", alarmPkt.TerminalInfo.AlarmTypeBits())
+	t.Logf("AlarmType from packet: %s (0x%02X)", alarmPkt.AlarmType.String(), alarmPkt.AlarmType)
+	t.Logf("TerminalInfo.String(): %s", alarmPkt.TerminalInfo.String())
+
+	// Verify the byte is actually 49
+	if alarmPkt.TerminalInfo.Raw() != 0x49 {
+		t.Errorf("Expected TerminalInfo byte 0x49, got 0x%02X", alarmPkt.TerminalInfo.Raw())
+	}
+
+	// If byte is 49 (01001001), Bit 7 should be 0, so OilElectricityDisconnected should be false
+	if alarmPkt.TerminalInfo.OilElectricityDisconnected() {
+		t.Error("OilElectricityDisconnected should be FALSE for byte 0x49 (Bit 7 = 0)")
+	}
+
+	// Alarm type should be Vibration (0x03) from the alarm byte
+	if alarmPkt.AlarmType != protocol.AlarmVibration {
+		t.Errorf("Expected AlarmType Vibration (0x03), got %s (0x%02X)", alarmPkt.AlarmType.String(), alarmPkt.AlarmType)
+	}
+}
+
 func TestAlarmType_String(t *testing.T) {
 	tests := []struct {
 		alarm protocol.AlarmType

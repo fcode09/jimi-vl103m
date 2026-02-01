@@ -222,12 +222,13 @@ func (tz Timezone) Location() *time.Location {
 }
 
 // LanguageString returns the language name
+// Language codes: 0x01 = English, 0x02 = Chinese
 func (tz Timezone) LanguageString() string {
 	switch tz.Language {
 	case 0x01:
-		return "Chinese"
-	case 0x02:
 		return "English"
+	case 0x02:
+		return "Chinese"
 	default:
 		return "Unknown"
 	}

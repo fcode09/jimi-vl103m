@@ -40,7 +40,16 @@ type LocationPacket struct {
 	LBSInfo types.LBSInfo
 
 	// TerminalInfo contains device status (if present)
+	// Note: For GPS Location packets, this contains other status bits but NOT ACC status.
+	// ACC status is stored in the dedicated 'ACC' field below.
 	TerminalInfo types.TerminalInfo
+
+	// ACC indicates whether the vehicle ignition is ON (true) or OFF (false).
+	// For GPS Location packets (0x22 and 0xA0), ACC is a dedicated byte where:
+	// - 0x00 = ACC off
+	// - 0x01 = ACC on
+	// This is different from heartbeat/alarm packets where ACC is bit 1 of a status byte.
+	ACC bool
 
 	// VoltageLevel indicates battery level (if present)
 	VoltageLevel protocol.VoltageLevel
@@ -135,11 +144,10 @@ func (p *LocationPacket) HeadingName() string {
 }
 
 // ACCOn returns true if ACC (ignition) is on
+// For GPS Location packets (0x22 and 0xA0), this reads the dedicated ACC field.
+// Note: This is different from heartbeat/alarm packets where ACC is stored in TerminalInfo.
 func (p *LocationPacket) ACCOn() bool {
-	if p.HasStatus {
-		return p.TerminalInfo.ACCOn()
-	}
-	return false
+	return p.ACC
 }
 
 // IsCharging returns true if the device is charging

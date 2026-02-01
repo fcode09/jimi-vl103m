@@ -2,10 +2,12 @@ package parser
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
-	"github.com/fcode09/jimi-vl103m/pkg/jimi/packet"
-	"github.com/fcode09/jimi-vl103m/pkg/jimi/protocol"
+	"github.com/intelcon-group/jimi-vl103m/pkg/jimi/packet"
+	"github.com/intelcon-group/jimi-vl103m/pkg/jimi/protocol"
+	"github.com/intelcon-group/jimi-vl103m/pkg/jimi/types"
 )
 
 // OnlineCommandParser parses online command packets (Protocol 0x80)
@@ -179,47 +181,106 @@ func NewGPSAddressRequestParser() *GPSAddressRequestParser {
 }
 
 // Parse implements Parser interface
-// GPS address request content contains coordinates for reverse geocoding
+// Content structure (41 bytes according to JM-VL03 spec):
+// - DateTime: 6 bytes (YY MM DD HH MM SS)
+// - GPS Info: 1 byte (satellites in low nibble)
+// - Latitude: 4 bytes (raw / 1,800,000)
+// - Longitude: 4 bytes (raw / 1,800,000)
+// - Speed: 1 byte (km/h)
+// - Course/Status: 2 bytes (heading + status flags)
+// - Phone Number: 21 bytes (ASCII)
+// - Alert/Language: 2 bytes (AlarmType + Language)
+// Total content: 41 bytes
 func (p *GPSAddressRequestParser) Parse(data []byte) (packet.Packet, error) {
 	content, err := ExtractContent(data)
 	if err != nil {
 		return nil, fmt.Errorf("gps_address_request: %w", err)
 	}
 
+	// STRICT: Require exactly 41 bytes according to specification
+	if len(content) < 41 {
+		return nil, fmt.Errorf("gps_address_request: content too short: got %d bytes, need exactly 41", len(content))
+	}
+
+	// If more than 41 bytes, use first 41 and ignore extras
+	if len(content) > 41 {
+		content = content[:41]
+	}
+
+	offset := 0
+
+	// 1. Parse DateTime (6 bytes)
+	dt, err := types.DateTimeFromBytes(content[offset : offset+6])
+	if err != nil {
+		return nil, fmt.Errorf("gps_address_request: failed to parse datetime: %w", err)
+	}
+	offset += 6
+
+	// 2. Parse GPS Info byte (1 byte)
+	// Low nibble (bits 3-0): Number of satellites
+	gpsInfoByte := content[offset]
+	satellites := gpsInfoByte & 0x0F
+	offset++
+
+	// 3. Parse Latitude (4 bytes)
+	latBytes := content[offset : offset+4]
+	offset += 4
+
+	// 4. Parse Longitude (4 bytes)
+	lonBytes := content[offset : offset+4]
+	offset += 4
+
+	// 5. Parse Speed (1 byte)
+	speed := content[offset]
+	offset++
+
+	// 6. Parse Course/Status (2 bytes)
+	courseStatus, err := types.NewCourseStatusFromBytes(content[offset : offset+2])
+	if err != nil {
+		return nil, fmt.Errorf("gps_address_request: failed to parse course/status: %w", err)
+	}
+	offset += 2
+
+	// Create coordinates with hemisphere info from course status
+	coords, err := types.NewCoordinatesFromBytes(
+		latBytes, lonBytes,
+		courseStatus.IsNorthLatitude,
+		courseStatus.IsEastLongitude,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("gps_address_request: failed to parse coordinates: %w", err)
+	}
+
+	// 7. Parse Phone Number (21 bytes ASCII)
+	phoneBytes := content[offset : offset+21]
+	// Trim null bytes and whitespace from the end
+	phoneNumber := strings.TrimRight(string(phoneBytes), "\x00 \t\n\r")
+	offset += 21
+
+	// 8. Parse Alert and Language (2 bytes)
+	alarmType := protocol.AlarmType(content[offset])
+	offset++
+	language := protocol.Language(content[offset])
+
 	// Extract serial number
 	serialNum, _ := ExtractSerialNumber(data)
 
-	// The content typically contains latitude and longitude in some format
-	// For now, store as raw string
-	coords := ""
-	var language protocol.Language = protocol.LanguageEnglish
-
-	if len(content) > 0 {
-		// Try to extract as ASCII coordinates string
-		coords = string(content)
-
-		// Last byte might be language indicator
-		if len(content) > 1 {
-			lastByte := content[len(content)-1]
-			if lastByte == 0x01 || lastByte == 0x02 {
-				language = protocol.Language(lastByte)
-				coords = string(content[:len(content)-1])
-			}
-		}
-	}
-
-	pkt := &packet.GPSAddressRequestPacket{
+	return &packet.GPSAddressRequestPacket{
 		BasePacket: packet.BasePacket{
 			ProtocolNum: protocol.ProtocolGPSAddressRequest,
 			SerialNum:   serialNum,
 			RawData:     data,
 			ParsedAt:    time.Now(),
 		},
-		Coordinates: coords,
-		Language:    language,
-	}
-
-	return pkt, nil
+		DateTime:     dt,
+		Satellites:   satellites,
+		Coordinates:  coords,
+		Speed:        speed,
+		CourseStatus: courseStatus,
+		PhoneNumber:  phoneNumber,
+		AlarmType:    alarmType,
+		Language:     language,
+	}, nil
 }
 
 // init registers command-related parsers with the default registry
