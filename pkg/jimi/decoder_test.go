@@ -101,8 +101,8 @@ func TestDecodeLoginPacket(t *testing.T) {
 	// XX XX - CRC (will need to calculate)
 	// 0D 0A - Stop bit
 
-	// For testing without CRC validation
-	decoder := NewDecoder(WithSkipCRC(), WithStrictMode(false))
+	// For testing without CRC and IMEI validation
+	decoder := NewDecoder(WithSkipCRC(), WithStrictMode(false), WithoutIMEIValidation())
 
 	// This is a simplified test packet - in real tests you'd use actual captured packets
 	hexData := "7878110103593390739305300400014E0001FFFF0D0A"

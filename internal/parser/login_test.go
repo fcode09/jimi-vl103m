@@ -33,14 +33,14 @@ func TestLoginParser_Parse(t *testing.T) {
 		{
 			name:        "valid login packet",
 			hex:         "78781101035933907393052380044D014E00015ED00D0A",
-			wantIMEI:    "035933907393052",
+			wantIMEI:    "359339073930523", // 16-digit BCD: 0359339073930523 → last 15 digits
 			wantModelID: 0x8004,
 			wantErr:     false,
 		},
 		{
 			name:        "login with timezone",
 			hex:         "787811010123456789012348044D03200001ABCD0D0A",
-			wantIMEI:    "012345678901234",
+			wantIMEI:    "123456789012348", // 16-digit BCD: 0123456789012348 → last 15 digits
 			wantModelID: 0x044D,
 			wantErr:     false,
 		},
@@ -51,7 +51,8 @@ func TestLoginParser_Parse(t *testing.T) {
 		},
 	}
 
-	p := NewLoginParserWithOptions(false)
+	p := NewLoginParser()
+	ctx := Context{ValidateIMEI: false}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -60,7 +61,7 @@ func TestLoginParser_Parse(t *testing.T) {
 				t.Fatalf("Failed to decode hex: %v", err)
 			}
 
-			pkt, err := p.Parse(data)
+			pkt, err := p.Parse(data, ctx)
 			if tt.wantErr {
 				if err == nil {
 					t.Error("Expected error, got nil")
@@ -94,12 +95,13 @@ func TestLoginParser_Parse(t *testing.T) {
 }
 
 func TestLoginParser_ParseIMEIValidation(t *testing.T) {
-	p := NewLoginParserWithOptions(false)
+	p := NewLoginParser()
+	ctx := Context{ValidateIMEI: false}
 
 	// Valid login packet
 	data, _ := hex.DecodeString("78781101035933907393052380044D014E00015ED00D0A")
 
-	pkt, err := p.Parse(data)
+	pkt, err := p.Parse(data, ctx)
 	if err != nil {
 		t.Fatalf("Parse failed: %v", err)
 	}
@@ -118,12 +120,13 @@ func TestLoginParser_ParseIMEIValidation(t *testing.T) {
 }
 
 func TestLoginParser_TimezoneExtraction(t *testing.T) {
-	p := NewLoginParserWithOptions(false)
+	p := NewLoginParser()
+	ctx := Context{ValidateIMEI: false}
 
 	// Login packet with UTC+8 timezone (0x0320 = 800 = +8:00)
 	data, _ := hex.DecodeString("787811010123456789012348044D03200001ABCD0D0A")
 
-	pkt, err := p.Parse(data)
+	pkt, err := p.Parse(data, ctx)
 	if err != nil {
 		t.Fatalf("Parse failed: %v", err)
 	}

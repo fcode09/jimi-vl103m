@@ -25,7 +25,7 @@ func NewInfoTransferParser() *InfoTransferParser {
 // Info transfer packet content structure:
 // - Sub-protocol: 1 byte
 // - Data: variable length
-func (p *InfoTransferParser) Parse(data []byte) (packet.Packet, error) {
+func (p *InfoTransferParser) Parse(data []byte, ctx Context) (packet.Packet, error) {
 	content, err := ExtractContent(data)
 	if err != nil {
 		return nil, fmt.Errorf("info_transfer: %w", err)

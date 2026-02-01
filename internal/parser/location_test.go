@@ -67,6 +67,7 @@ func TestLocationParser_Parse(t *testing.T) {
 	}
 
 	p := NewLocationParser()
+	ctx := DefaultContext()
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -75,7 +76,7 @@ func TestLocationParser_Parse(t *testing.T) {
 				t.Fatalf("Failed to decode hex: %v", err)
 			}
 
-			pkt, err := p.Parse(data)
+			pkt, err := p.Parse(data, ctx)
 			if tt.wantErr {
 				if err == nil {
 					t.Error("Expected error, got nil")
@@ -110,11 +111,12 @@ func TestLocationParser_Parse(t *testing.T) {
 
 func TestLocationParser_Coordinates(t *testing.T) {
 	p := NewLocationParser()
+	ctx := DefaultContext()
 
 	// Parse a known location packet
 	data, _ := hex.DecodeString("787822220f0c1d023305c9026b8d550c39771d14140c01cc00000100287d00000000001f710001643f0d0a")
 
-	pkt, err := p.Parse(data)
+	pkt, err := p.Parse(data, ctx)
 	if err != nil {
 		t.Fatalf("Parse failed: %v", err)
 	}
@@ -138,10 +140,11 @@ func TestLocationParser_Coordinates(t *testing.T) {
 
 func TestLocationParser_DateTime(t *testing.T) {
 	p := NewLocationParser()
+	ctx := DefaultContext()
 
 	data, _ := hex.DecodeString("787822220f0c1d023305c9026b8d550c39771d14140c01cc00000100287d00000000001f710001643f0d0a")
 
-	pkt, err := p.Parse(data)
+	pkt, err := p.Parse(data, ctx)
 	if err != nil {
 		t.Fatalf("Parse failed: %v", err)
 	}
@@ -185,10 +188,11 @@ func TestLocationParser_HeadingNames(t *testing.T) {
 
 func TestLocationParser_SatelliteCount(t *testing.T) {
 	p := NewLocationParser()
+	ctx := DefaultContext()
 
 	data, _ := hex.DecodeString("787822220f0c1d023305c9026b8d550c39771d14140c01cc00000100287d00000000001f710001643f0d0a")
 
-	pkt, err := p.Parse(data)
+	pkt, err := p.Parse(data, ctx)
 	if err != nil {
 		t.Fatalf("Parse failed: %v", err)
 	}
@@ -205,13 +209,14 @@ func TestLocationParser_SatelliteCount(t *testing.T) {
 
 func TestLocationParser_ACCStatus(t *testing.T) {
 	p := NewLocationParser()
+	ctx := DefaultContext()
 
 	// Test packet with ACC=ON (0x01) - Simulated packet from user
 	// Raw: 787822221A02010E02118901C31ADC07ABA0CA00189301361A1234005678010000003C00B90D0A
 	// The ACC byte is 0x01 (at position after LBS data), should be ON
 	dataACCOn, _ := hex.DecodeString("787822221A02010E02118901C31ADC07ABA0CA00189301361A1234005678010000003C00B90D0A")
 
-	pkt, err := p.Parse(dataACCOn)
+	pkt, err := p.Parse(dataACCOn, ctx)
 	if err != nil {
 		t.Fatalf("Parse failed for ACC=ON packet: %v", err)
 	}
@@ -232,7 +237,7 @@ func TestLocationParser_ACCStatus(t *testing.T) {
 	// Same packet but with ACC byte changed to 0x00
 	dataACCOff, _ := hex.DecodeString("787822221A02010E02118901C31ADC07ABA0CA00189301361A1234005678000000003C00B80D0A")
 
-	pkt2, err := p.Parse(dataACCOff)
+	pkt2, err := p.Parse(dataACCOff, ctx)
 	if err != nil {
 		t.Fatalf("Parse failed for ACC=OFF packet: %v", err)
 	}
@@ -252,12 +257,13 @@ func TestLocationParser_ACCStatus(t *testing.T) {
 
 func TestLocation4GParser_ACCStatus(t *testing.T) {
 	p := NewLocation4GParser()
+	ctx := DefaultContext()
 
 	// Test packet 4G with ACC=ON (0x01) - Simulated packet from user
 	// Raw: 78782DA01A02010E04038A01C3BF0307ABCB8500193501CC000000C60D0000000002CE68EA010000000000000004652A0D0A
 	dataACCOn, _ := hex.DecodeString("78782DA01A02010E04038A01C3BF0307ABCB8500193501CC000000C60D0000000002CE68EA010000000000000004652A0D0A")
 
-	pkt, err := p.Parse(dataACCOn)
+	pkt, err := p.Parse(dataACCOn, ctx)
 	if err != nil {
 		t.Fatalf("Parse failed for 4G ACC=ON packet: %v", err)
 	}

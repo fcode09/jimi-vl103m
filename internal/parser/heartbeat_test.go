@@ -73,6 +73,7 @@ func TestHeartbeatParser_Parse(t *testing.T) {
 	}
 
 	p := NewHeartbeatParser()
+	ctx := DefaultContext()
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -81,7 +82,7 @@ func TestHeartbeatParser_Parse(t *testing.T) {
 				t.Fatalf("Failed to decode hex: %v", err)
 			}
 
-			pkt, err := p.Parse(data)
+			pkt, err := p.Parse(data, ctx)
 			if tt.wantErr {
 				if err == nil {
 					t.Error("Expected error, got nil")

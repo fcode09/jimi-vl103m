@@ -120,6 +120,7 @@ func TestGPSAddressRequestParser_Parse(t *testing.T) {
 	}
 
 	parser := NewGPSAddressRequestParser()
+	ctx := DefaultContext()
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -128,7 +129,7 @@ func TestGPSAddressRequestParser_Parse(t *testing.T) {
 				t.Fatalf("Failed to decode hex: %v", err)
 			}
 
-			pkt, err := parser.Parse(data)
+			pkt, err := parser.Parse(data, ctx)
 
 			if tt.wantErr {
 				if err == nil {

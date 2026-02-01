@@ -27,7 +27,7 @@ func NewOnlineCommandParser() *OnlineCommandParser {
 // - Command Length: 1 byte
 // - Server Flag: 4 bytes
 // - Command Content: variable length (ASCII)
-func (p *OnlineCommandParser) Parse(data []byte) (packet.Packet, error) {
+func (p *OnlineCommandParser) Parse(data []byte, ctx Context) (packet.Packet, error) {
 	content, err := ExtractContent(data)
 	if err != nil {
 		return nil, fmt.Errorf("online_command: %w", err)
@@ -92,7 +92,7 @@ func NewCommandResponseParser() *CommandResponseParser {
 // - Response Length: 1 byte
 // - Server Flag: 4 bytes (echo of original command)
 // - Response Content: variable length (ASCII)
-func (p *CommandResponseParser) Parse(data []byte) (packet.Packet, error) {
+func (p *CommandResponseParser) Parse(data []byte, ctx Context) (packet.Packet, error) {
 	content, err := ExtractContent(data)
 	if err != nil {
 		return nil, fmt.Errorf("command_response: %w", err)
@@ -152,10 +152,10 @@ func NewCommandResponseOldParser() *CommandResponseOldParser {
 }
 
 // Parse implements Parser interface
-func (p *CommandResponseOldParser) Parse(data []byte) (packet.Packet, error) {
+func (p *CommandResponseOldParser) Parse(data []byte, ctx Context) (packet.Packet, error) {
 	// Use the same parsing logic as CommandResponseParser
 	parser := &CommandResponseParser{}
-	pkt, err := parser.Parse(data)
+	pkt, err := parser.Parse(data, ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -191,7 +191,7 @@ func NewGPSAddressRequestParser() *GPSAddressRequestParser {
 // - Phone Number: 21 bytes (ASCII)
 // - Alert/Language: 2 bytes (AlarmType + Language)
 // Total content: 41 bytes
-func (p *GPSAddressRequestParser) Parse(data []byte) (packet.Packet, error) {
+func (p *GPSAddressRequestParser) Parse(data []byte, ctx Context) (packet.Packet, error) {
 	content, err := ExtractContent(data)
 	if err != nil {
 		return nil, fmt.Errorf("gps_address_request: %w", err)

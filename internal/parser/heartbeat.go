@@ -28,7 +28,7 @@ func NewHeartbeatParser() *HeartbeatParser {
 // - GSM Signal: 1 byte
 // - Extended Info: 2 bytes (optional, in newer devices)
 // Total content: 3-5 bytes
-func (p *HeartbeatParser) Parse(data []byte) (packet.Packet, error) {
+func (p *HeartbeatParser) Parse(data []byte, ctx Context) (packet.Packet, error) {
 	content, err := ExtractContent(data)
 	if err != nil {
 		return nil, fmt.Errorf("heartbeat: %w", err)

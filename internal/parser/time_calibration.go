@@ -21,7 +21,7 @@ func NewTimeCalibrationParser() *TimeCalibrationParser {
 
 // Parse implements Parser interface
 // Time calibration packet has no content - it's just a request
-func (p *TimeCalibrationParser) Parse(data []byte) (packet.Packet, error) {
+func (p *TimeCalibrationParser) Parse(data []byte, ctx Context) (packet.Packet, error) {
 	// Extract serial number
 	serialNum, _ := ExtractSerialNumber(data)
 

@@ -97,6 +97,7 @@ func TestAlarmParser_Parse(t *testing.T) {
 	}
 
 	p := NewAlarmParser()
+	ctx := DefaultContext()
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -105,7 +106,7 @@ func TestAlarmParser_Parse(t *testing.T) {
 				t.Fatalf("Failed to decode hex: %v", err)
 			}
 
-			pkt, err := p.Parse(data)
+			pkt, err := p.Parse(data, ctx)
 			if tt.wantErr {
 				if err == nil {
 					t.Error("Expected error, got nil")
@@ -184,7 +185,8 @@ func TestAlarm4GParser_RealDevicePacket(t *testing.T) {
 	data, _ := hex.DecodeString(raw)
 
 	parser := NewAlarm4GParser()
-	pkt, err := parser.Parse(data)
+	ctx := DefaultContext()
+	pkt, err := parser.Parse(data, ctx)
 	if err != nil {
 		t.Fatalf("Parse failed: %v", err)
 	}
@@ -242,11 +244,12 @@ func TestAlarmType_String(t *testing.T) {
 
 func TestAlarmParser_Location(t *testing.T) {
 	p := NewAlarmParser()
+	ctx := DefaultContext()
 
 	// Parse a valid alarm packet
 	data, _ := hex.DecodeString("787825260F0C1D030B26C9027AC8180C4658600004000901CC00287D001F718004040102000C472A0D0A")
 
-	pkt, err := p.Parse(data)
+	pkt, err := p.Parse(data, ctx)
 	if err != nil {
 		t.Fatalf("Parse failed: %v", err)
 	}

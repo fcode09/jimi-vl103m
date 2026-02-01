@@ -146,6 +146,8 @@ func TimezoneFromBytes(data []byte) (Timezone, error) {
 		return Timezone{}, fmt.Errorf("timezone requires 2 bytes, got %d", len(data))
 	}
 
+	// Protocol uses big-endian byte order (as per documentation)
+	// Example: 0x32 0x00 = 0x3200 = 12800, value (bits 15-4) = 800 = 8*100 = +8:00
 	value := uint16(data[0])<<8 | uint16(data[1])
 
 	// Extract timezone (bit15-bit4)
@@ -195,9 +197,10 @@ func (tz Timezone) ToBytes() []byte {
 
 	value |= uint16(tz.Language & 0x03)
 
+	// Protocol uses big-endian byte order
 	return []byte{
-		byte(value >> 8),
-		byte(value & 0xFF),
+		byte(value >> 8),   // High byte first
+		byte(value & 0xFF), // Low byte second
 	}
 }
 

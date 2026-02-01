@@ -12,22 +12,12 @@ import (
 // LoginParser parses login packets (Protocol 0x01)
 type LoginParser struct {
 	BaseParser
-	validateIMEI bool
 }
 
 // NewLoginParser creates a new login parser
 func NewLoginParser() *LoginParser {
 	return &LoginParser{
-		BaseParser:   NewBaseParser(protocol.ProtocolLogin, "Login"),
-		validateIMEI: true,
-	}
-}
-
-// NewLoginParserWithOptions creates a login parser with options
-func NewLoginParserWithOptions(validateIMEI bool) *LoginParser {
-	return &LoginParser{
-		BaseParser:   NewBaseParser(protocol.ProtocolLogin, "Login"),
-		validateIMEI: validateIMEI,
+		BaseParser: NewBaseParser(protocol.ProtocolLogin, "Login"),
 	}
 }
 
@@ -37,7 +27,7 @@ func NewLoginParserWithOptions(validateIMEI bool) *LoginParser {
 // - Model Identification Code: 2 bytes
 // - Timezone/Language: 2 bytes
 // Total content: 12 bytes
-func (p *LoginParser) Parse(data []byte) (packet.Packet, error) {
+func (p *LoginParser) Parse(data []byte, ctx Context) (packet.Packet, error) {
 	content, err := ExtractContent(data)
 	if err != nil {
 		return nil, fmt.Errorf("login: %w", err)
@@ -49,7 +39,7 @@ func (p *LoginParser) Parse(data []byte) (packet.Packet, error) {
 
 	// Parse IMEI (8 bytes BCD)
 	var imei types.IMEI
-	if p.validateIMEI {
+	if ctx.ValidateIMEI {
 		imei, err = types.NewIMEIFromBytes(content[0:8])
 	} else {
 		imei, err = types.NewIMEIFromBytesUnchecked(content[0:8])
